@@ -103,6 +103,7 @@ fn main() -> anyhow::Result<()> {
             
             _ => menu()
         }
+        println!();
     }
 
     Ok(())
