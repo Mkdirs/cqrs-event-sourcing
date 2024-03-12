@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::domain::User;
 
 #[derive(Debug, Clone)]
-struct BaseEvent {
+pub struct BaseEvent {
     pub id:Uuid,
     pub created: Instant
 }
@@ -17,7 +17,7 @@ impl Default for BaseEvent{
 }
 
 #[derive(Debug, Clone)]
-enum Event {
+pub enum Event {
     UserCreatedEvent(BaseEvent, User),
     UserDeletedEvent(BaseEvent, User),
     UserCreditedEvent(BaseEvent, User, u32),
@@ -26,7 +26,7 @@ enum Event {
 
 
 #[derive(Debug, Default)]
-struct EventStore {
+pub struct EventStore {
     store: HashMap<String, Vec<Event>>
 }
 
@@ -43,7 +43,7 @@ impl EventStore {
     }
 }
 
-struct UserUtility ();
+pub struct UserUtility ();
 
 impl UserUtility {
     pub fn recreate_state(repository:&EventStore, name:&str) -> Option<User> {

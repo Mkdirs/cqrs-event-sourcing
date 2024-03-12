@@ -1,4 +1,6 @@
-use super::{User, Users};
+use crate::domain::{User, Users};
+
+
 
 trait Query{}
 
@@ -28,6 +30,10 @@ impl UserReadRepository {
 
     pub fn add(&mut self, user:User){
         self.users.push(user);
+    }
+
+    pub fn remove(&mut self, name:&str){
+        self.users = self.users.clone().into_iter().filter(|user| user.name != name).collect();
     }
 
     pub fn users(&self) -> &[User] {
