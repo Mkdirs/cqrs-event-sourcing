@@ -41,6 +41,10 @@ impl EventStore {
 
         self.store.insert(id, events);
     }
+
+    pub fn has(&self, id:&str) -> bool {
+        self.store.contains_key(id)
+    }
 }
 
 pub struct UserUtility ();
@@ -62,38 +66,5 @@ impl UserUtility {
         }
 
         None
-    }
-}
-
-pub struct UserService {
-    repository: EventStore
-}
-
-impl UserService {
-    pub fn new(repository:EventStore) -> Self{
-        UserService { repository }
-    }
-
-    pub fn create_user(&mut self, user:User) {
-        let base = BaseEvent::default();
-        self.repository.add(user.name.clone(), Event::UserCreatedEvent(base, user));
-    }
-
-    pub fn delete_user(&mut self, name:String) {
-        if let Some(user) = UserUtility::recreate_state(&self.repository, &name){
-            self.repository.add(name, Event::UserDeletedEvent(BaseEvent::default(), user));
-        }
-    }
-
-    pub fn credit_user(&mut self, name:String, amount:u32) {
-        if let Some(user) = UserUtility::recreate_state(&self.repository, &name){
-            self.repository.add(name, Event::UserCreditedEvent(BaseEvent::default(), user, amount));
-        }
-    }
-
-    pub fn debit_user(&mut self, name:String, amount:u32) {
-        if let Some(user) = UserUtility::recreate_state(&self.repository, &name){
-            self.repository.add(name, Event::UserDebitedEvent(BaseEvent::default(), user, amount));
-        }
     }
 }

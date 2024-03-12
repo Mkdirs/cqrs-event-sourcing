@@ -2,28 +2,18 @@ use crate::domain::{User, Users};
 
 
 
-trait Query{}
+pub enum Query {
+    UsersQuery,
+    UsersWithMoneyBelow(i32),
+    UsersWithMoneyAbove(i32),
 
-struct UsersQuery();
-impl Query for UsersQuery{}
+}
 
-struct UsersWithMoneyBelow(i32);
-impl Query for UsersWithMoneyBelow{}
-
-struct UsersWithMoneyAbove(i32);
-impl Query for UsersWithMoneyAbove{}
-
-struct UsersInRedQuery();
-impl Query for UsersInRedQuery{}
 
 
 #[derive(Debug, Default)]
 pub struct UserReadRepository {
     pub(self) users:Users
-}
-
-trait QueryHandler<Q:Query, R> {
-    fn handle(&self, query:Q) -> R;
 }
 
 impl UserReadRepository {
@@ -43,40 +33,23 @@ impl UserReadRepository {
     
 }
 
-pub struct UserProjection {
-    repository:UserReadRepository
-}
+pub struct UserProjection();
 
 impl UserProjection {
-    pub fn new(repository: UserReadRepository) -> Self{
-        UserProjection { repository }
-    }
-}
 
-impl QueryHandler<UsersQuery, Users> for UserProjection{
-    fn handle(&self, _:UsersQuery) -> Users {
-        self.repository.users().to_vec()
-    }
-}
-
-impl QueryHandler<UsersWithMoneyAbove, Users> for UserProjection {
-    fn handle(&self, query:UsersWithMoneyAbove) -> Users {
-        self.repository.users().to_vec().into_iter()
-            .filter(|user| user.money >= query.0)
-            .collect()
-    }
-}
-
-impl QueryHandler<UsersWithMoneyBelow, Users> for UserProjection {
-    fn handle(&self, query:UsersWithMoneyBelow) -> Users {
-        self.repository.users().to_vec().into_iter()
-            .filter(|user| user.money <= query.0)
-            .collect()
-    }
-}
-
-impl QueryHandler<UsersInRedQuery, Users> for UserProjection {
-    fn handle(&self, _:UsersInRedQuery) -> Users {
-        self.handle(UsersWithMoneyBelow(0))
+    pub fn handle(query:Query, repository: &UserReadRepository) -> Users {
+        match query {
+            Query::UsersQuery => repository.users().to_vec(),
+            Query::UsersWithMoneyBelow(amount) => {
+                repository.users().to_vec().into_iter()
+                    .filter(|user| user.money <= amount)
+                    .collect()
+            },
+            Query::UsersWithMoneyAbove(amount) => {
+                repository.users().to_vec().into_iter()
+                    .filter(|user| user.money >= amount)
+                    .collect()
+            }
+        }
     }
 }

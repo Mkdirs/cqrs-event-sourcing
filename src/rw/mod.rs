@@ -6,18 +6,16 @@ pub mod read;
 pub mod write;
 
 pub struct UserProjector{
-    repository:UserReadRepository
+    pub repository:UserReadRepository
 }
 
 impl UserProjector {
-    pub fn new(repository:UserReadRepository) -> Self {
-        UserProjector { repository }
+    pub fn new() -> Self {
+        UserProjector { repository: UserReadRepository::default() }
     }
 
-    pub fn project(&mut self, events:Vec<Event>) {
-        for event in events {
-            self.apply(event);
-        }
+    pub fn project(&mut self, event:Event) {
+        self.apply(event);
         
     }
 
