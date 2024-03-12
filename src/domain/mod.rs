@@ -3,12 +3,12 @@ use self::read::UserReadRepository;
 pub mod write;
 pub mod read;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Contact{
     pub mail:String
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct User {
     pub name:String,
     pub money:i32,
