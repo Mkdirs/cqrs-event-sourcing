@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use super::User;
+use super::{Contact, User};
 
 
 pub trait Command{}
 
-pub struct CreateUser(String);
+pub struct CreateUser(String, Contact);
 impl Command for CreateUser{}
 
 pub struct DeleteUser(String);
@@ -36,7 +36,7 @@ impl UserAggregate {
 
 impl CommandHandler<CreateUser, User> for UserAggregate{
     fn handle(&mut self, cmd:CreateUser) -> Option<User> {
-        let user = User{ name:cmd.0, money: 0 };
+        let user = User{ name:cmd.0, contact: cmd.1, money: 0 };
         self.repository.insert(user.name.clone(), user.clone());
         Some(user)
     }
@@ -52,7 +52,7 @@ impl CommandHandler<CreditUser, User> for UserAggregate {
     fn handle(&mut self, cmd:CreditUser) -> Option<User> {
         
         if let Some(user) = self.repository.get(&cmd.0) {
-            let credited = User{ money: user.money+cmd.1, ..user.clone()};
+            let credited = User{ money: user.money+ (cmd.1 as i32), ..user.clone()};
             self.repository.insert(user.name.clone(), credited.clone());
             Some(credited)
         }else{
@@ -64,13 +64,9 @@ impl CommandHandler<CreditUser, User> for UserAggregate {
 impl CommandHandler<DebitUser, User> for UserAggregate{
     fn handle(&mut self, cmd:DebitUser) -> Option<User> {
         if let Some(user) = self.repository.get(&cmd.0) {
-            if let Some(value) = user.money.checked_sub(cmd.1){
-                let debited = User{ money: value, ..user.clone()};
-                self.repository.insert(user.name.clone(), debited.clone());
-                return Some(debited);
-            }
-
-            None
+            let debited = User{ money: user.money - (cmd.1 as i32), ..user.clone()};
+            self.repository.insert(user.name.clone(), debited.clone());
+            Some(debited)
             
             
         }else{
